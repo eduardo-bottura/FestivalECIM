@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cardapio Digital - Festival ECIM 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background: #f3f4f6; }
+    .produto-card { min-height: 132px; }
+  </style>
+</head>
+<body class="font-sans text-black">
+  <header class="bg-black text-white">
+    <div class="max-w-5xl mx-auto px-4 py-5 flex items-center justify-center gap-3 text-center">
+      <img src="escola-civico-militar-como-funciona-1-300x191.webp" alt="Festival ECIM" class="w-12 h-12 object-cover">
+      <div>
+        <h1 class="text-2xl md:text-4xl font-black leading-tight">CARDAPIO DIGITAL</h1>
+        <p class="text-sm md:text-lg font-semibold">Festival ECIM 2026</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-5xl mx-auto p-4 md:p-6">
+    <section class="bg-yellow-300 border-4 border-yellow-500 rounded-xl p-4 md:p-6 text-center mb-6">
+      <h2 class="text-2xl md:text-4xl font-black">Produtos vendidos no festival</h2>
+      <p class="text-base md:text-xl font-semibold mt-2">Consulte os valores antes de ir ao caixa.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-3xl font-black mb-4">Alimentos</h2>
+      <div id="alimentos" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-3xl font-black mb-4">Bebidas</h2>
+      <div id="bebidas" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-3xl font-black mb-4">Extras</h2>
+      <div id="extras" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+    </section>
+  </main>
+
+  <footer class="max-w-5xl mx-auto px-4 pb-8 text-center text-gray-600 font-semibold">
+    Valores sujeitos a disponibilidade no dia do evento.
+  </footer>
+
+  <script src="festival-core.js"></script>
+  <script>
+    const core = window.FestivalCore;
+    const grupos = {
+      rapidos: document.getElementById("alimentos"),
+      bebidas: document.getElementById("bebidas"),
+      pratos: document.getElementById("extras")
+    };
+    const descricoes = {
+      "Espeto": "Carne, frango ou kafta",
+      "Refrigerante lata": "Coca-Cola, Coca-Cola Zero, Fanta, Guaraná Antarctica",
+      "Cerveja lata": "Skol, Brahma, Sub-Zero",
+      "Agua garrafa 350ml": "Água com gás, água sem gás"
+    };
+
+    core.produtosFestival.forEach(produto => {
+      const card = document.createElement("article");
+      const descricao = descricoes[produto.nome] || "";
+      card.className = "produto-card bg-white rounded-xl shadow p-4 flex items-center gap-4 border border-gray-200";
+      card.innerHTML = `
+        <img src="${produto.img}" alt="${produto.nome}" class="w-24 h-24 object-cover rounded-xl bg-gray-100">
+        <div class="flex-1">
+          <h3 class="text-2xl font-black leading-tight">${produto.nome}</h3>
+          ${descricao ? `<p class="text-base md:text-lg text-gray-800 font-bold mt-1">${descricao}</p>` : ""}
+          <p class="text-gray-600 font-semibold mt-1">${produto.carrinho}</p>
+          <p class="text-3xl font-black text-green-700 mt-2">R$ ${core.formatarValor(produto.preco)}</p>
+        </div>
+      `;
+      grupos[produto.categoriaTela].appendChild(card);
+    });
+  </script>
+</body>
+</html>
