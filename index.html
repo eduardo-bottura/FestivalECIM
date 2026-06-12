@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDV - Festival</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Centraliza o texto da tabela */
+    #tabelaVendas th, #tabelaVendas td {
+      text-align: center;
+    }
+    /* Fundo suave para a linha do total */
+    .linha-total {
+      background-color: #F3F4F6; /* cinza claro */
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Cabeçalho -->
+  <header class="bg-black text-white p-2 flex items-center justify-center gap-2 text-xl font-bold">
+   <img src="escola-civico-militar-como-funciona-1-300x191.webp" alt="Festival" class="w-10 h-10">
+    CONTROLE DE VENDAS - FESTIVAL ECIM 2026
+    CAIXA - PIX
+  </header>
+
+  <div class="max-w-6xl mx-auto p-6 grid grid-cols-3 gap-6 mt-4">
+
+    <!-- Lista de Produtos -->
+    <div class="col-span-2 bg-white rounded-2xl shadow p-4">
+      <h1 class="text-2xl font-bold mb-4">Produtos</h1>
+
+      <h2 class="text-xl font-semibold mb-2 mt-4">Alimentos</h2>
+      <div id="produtos-rapidos" class="grid grid-cols-2 gap-4 mb-4"></div>
+
+      <h2 class="text-xl font-semibold mb-2 mt-4">Bebidas</h2>
+      <div id="produtos-bebidas" class="grid grid-cols-2 gap-4 mb-4"></div>
+
+      <h2 class="text-xl font-semibold mb-2 mt-4">Extras</h2>
+      <div id="produtos-pratos" class="grid grid-cols-2 gap-4 mb-4"></div>
+    </div>
+
+    <!-- Carrinho -->
+    <div class="bg-white rounded-2xl shadow p-4 flex flex-col h-full">
+      <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+        <img src="icone-do-carrinho_933463-13570.avif" alt="Carrinho" class="w-6 h-6">
+        Carrinho
+      </h2>
+
+      <div id="carrinho" class="flex-1 overflow-y-auto space-y-2 max-h-64 mb-4"></div>
+
+      <div class="border-t pt-4 flex justify-between text-xl font-bold">
+        <span>Total:</span>
+        <span id="total">R$ 0,00</span>
+      </div>
+
+      <!-- Dinheiro Recebido / Troco destacado -->
+      <div class="mt-4 p-4 bg-gray-50 rounded-xl">
+        <label class="block font-semibold mb-1">Dinheiro Recebido:</label>
+        <input type="number" id="recebido" placeholder="Digite o valor recebido" 
+               class="w-full border rounded-lg p-2" oninput="calcularTroco()">
+        <div class="mt-4 flex justify-between text-lg font-bold">
+          <span>Troco:</span>
+          <span id="troco">R$ 0,00</span>
+        </div>
+      </div>
+
+      <!-- Botão Finalizar Venda próximo do Troco -->
+      <button onclick="finalizarVenda()" 
+              class="mt-4 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">
+        Finalizar Venda
+      </button>
+
+      <!-- Botão Relatório -->
+      <div class="flex flex-col gap-4 mt-4">
+        <button onclick="mostrarRelatorio()" 
+                class="bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition">
+          📊 Relatório
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seção de Edição de Vendas -->
+  <div class="max-w-6xl mx-auto p-6 mt-6 bg-white rounded-2xl shadow">
+    <h2 class="text-2xl font-bold mb-4">Editar Vendas Salvas</h2>
+    <table class="w-full border-collapse" id="tabelaVendas">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border p-2">Produto</th>
+          <th class="border p-2">Quantidade</th>
+          <th class="border p-2">Valor Unitário</th>
+          <th class="border p-2">Valor Total</th>
+          <th class="border p-2">Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- Total Arrecadado -->
+  <div class="max-w-6xl mx-auto p-6 mt-2 bg-white rounded-2xl shadow text-center text-xl font-bold">
+    Total Arrecadado: <span id="totalArrecadado">R$ 0,00</span>
+  </div>
+
+  <!-- Botão de imprimir relatório fixo -->
+  <div class="max-w-6xl mx-auto p-6 mt-2 flex justify-center">
+    <button onclick="imprimirRelatorio()" 
+            class="bg-orange-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-600 transition">
+      🖨️ Imprimir Relatório
+    </button>
+  </div>
+
+  <script>
+    const produtos = [
+      { id: 1, nome: "Espeto", preco: 10.00, img: "OIP.webp", categoria: "rapidos" },
+      { id: 2, nome: "Salgado", preco: 8.00, img: "istockphoto-1092130320-170667a.jpg", categoria: "rapidos" },
+      { id: 3, nome: "Lanche", preco: 25.00, img: "ham.jpg", categoria: "rapidos" },
+      { id: 4, nome: "Caldo", preco: 20.00, img: "caldo.jpg", categoria: "rapidos" },
+      { id: 5, nome: "Massa", preco: 30.00, img: "358841.jpg", categoria: "rapidos" },
+      { id: 6, nome: "Doce", preco: 8.00, img: "OIP (1).webp", categoria: "rapidos" },
+      { id: 7, nome: "Cerveja lata", preco: 7.00, img: "cervejas-lata.png", categoria: "bebidas" },
+      { id: 8, nome: "Refrigerante lata", preco: 6.00, img: "refri_latas.jpg", categoria: "bebidas" },
+      { id: 9, nome: "Água garrafa 350ml", preco: 5.00, img: "Garrafa-Agua-Mineral-500-ml-pacote-12-unidades-600x600.jpg", categoria: "bebidas" },
+      { id: 10, nome: "Mesa", preco: 35.00, img: "OIP.jpg", categoria: "pratos" }
+    ];
+
+    let carrinho = {};
+    let vendas = JSON.parse(localStorage.getItem("vendas")) || {};
+
+    const produtosDivs = {
+      rapidos: document.getElementById("produtos-rapidos"),
+      bebidas: document.getElementById("produtos-bebidas"),
+      pratos: document.getElementById("produtos-pratos")
+    };
+
+    const carrinhoDiv = document.getElementById("carrinho");
+    const totalSpan = document.getElementById("total");
+    const trocoSpan = document.getElementById("troco");
+
+    function formatarValor(valor) {
+      return valor.toFixed(2).replace(".", ",");
+    }
+
+    produtos.forEach(p => {
+      const card = document.createElement("div");
+      card.className = "border rounded-xl p-4 flex items-center gap-4 shadow hover:shadow-md transition transform hover:scale-105";
+      card.innerHTML = `
+        <img src="${p.img}" alt="${p.nome}" class="w-16 h-16 object-cover rounded-lg">
+        <div class="flex-1">
+          <h3 class="text-lg font-bold">${p.nome}</h3>
+          <p class="text-gray-700">R$ ${formatarValor(p.preco)}</p>
+        </div>
+        <button onclick="adicionar(${p.id})" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-bold hover:bg-blue-700 transition">+</button>
+      `;
+      produtosDivs[p.categoria].appendChild(card);
+      if (!vendas[p.nome]) vendas[p.nome] = { qtd: 0, valor: p.preco };
+    });
+
+    function adicionar(id) {
+      if (!carrinho[id]) carrinho[id] = { ...produtos.find(p => p.id === id), quantidade: 0 };
+      carrinho[id].quantidade++;
+      renderCarrinho();
+    }
+
+    function remover(id) {
+      if (carrinho[id]) {
+        carrinho[id].quantidade--;
+        if (carrinho[id].quantidade <= 0) delete carrinho[id];
+        renderCarrinho();
+      }
+    }
+
+    function renderCarrinho() {
+      carrinhoDiv.innerHTML = "";
+      let total = 0;
+      Object.values(carrinho).forEach(item => {
+        total += item.preco * item.quantidade;
+        const linha = document.createElement("div");
+        linha.className = "flex justify-between items-center border-b pb-2";
+        linha.innerHTML = `
+          <span class="w-1/2 font-medium">${item.nome}</span>
+          <div class="flex items-center gap-2">
+            <button onclick="remover(${item.id})" class="bg-red-500 text-white px-2 rounded">-</button>
+            <span class="font-bold">${item.quantidade}</span>
+            <button onclick="adicionar(${item.id})" class="bg-green-500 text-white px-2 rounded">+</button>
+          </div>
+          <span class="w-1/4 text-right">R$ ${formatarValor(item.preco * item.quantidade)}</span>
+        `;
+        carrinhoDiv.appendChild(linha);
+      });
+      totalSpan.textContent = "R$ " + formatarValor(total);
+      calcularTroco();
+    }
+
+    function calcularTroco() {
+      const recebido = parseFloat(document.getElementById("recebido").value) || 0;
+      const total = Object.values(carrinho).reduce((sum, item) => sum + item.preco * item.quantidade, 0);
+      const troco = recebido - total;
+      trocoSpan.textContent = "R$ " + formatarValor(troco > 0 ? troco : 0);
+    }
+
+    function finalizarVenda() {
+      Object.values(carrinho).forEach(item => {
+        if (!vendas[item.nome]) vendas[item.nome] = { qtd: 0, valor: item.preco };
+        vendas[item.nome].qtd += item.quantidade;
+      });
+      localStorage.setItem("vendas", JSON.stringify(vendas));
+      carrinho = {};
+      renderCarrinho();
+      document.getElementById("recebido").value = "";
+      trocoSpan.textContent = "R$ 0,00";
+      renderTabelaVendas();
+      alert("✅ Venda finalizada e registrada!");
+    }
+
+    function mostrarRelatorio() {
+      let texto = "📊 Relatório de Vendas:\n\n";
+      let arrecadadoTotal = 0;
+      for (let nome in vendas) {
+        const item = vendas[nome];
+        const totalItem = item.qtd * item.valor;
+        texto += `${nome}: ${item.qtd} vendidos - R$ ${formatarValor(totalItem)}\n`;
+        arrecadadoTotal += totalItem;
+      }
+      texto += `\n💰 Total arrecadado: R$ ${formatarValor(arrecadadoTotal)}`;
+      alert(texto);
+    }
+
+    function imprimirRelatorio() {
+      let relatorio = `<html><head><title>Relatório de Vendas</title><style>
+        body { font-family: Arial, sans-serif; font-size: 18px; padding: 20px; }
+        h1 { text-align: center; color: #4B5563; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: center; }
+        th, td { border: 1px solid #374151; padding: 10px; }
+        th { background-color: #6B7280; color: white; }
+        tr:nth-child(even) { background-color: #E5E7EB; }
+        tr:hover { background-color: #D1D5DB; }
+        .total { font-weight: bold; font-size: 20px; background-color: #F3F4F6; }
+      </style></head><body>
+      <h1>📊 Relatório de Vendas - Festival ECIM 2026</h1>
+      <table><tr><th>Produto</th><th>Quantidade</th><th>Valor Unitário</th><th>Valor Total</th></tr>`;
+
+      let totalGeral = 0;
+      for (let nome in vendas) {
+        const item = vendas[nome];
+        const totalItem = item.qtd * item.valor;
+        totalGeral += totalItem;
+        relatorio += `<tr><td>${nome}</td><td>${item.qtd}</td><td>R$ ${formatarValor(item.valor)}</td><td>R$ ${formatarValor(totalItem)}</td></tr>`;
+      }
+
+      relatorio += `<tr class="total"><td colspan="3">Total Geral</td><td>R$ ${formatarValor(totalGeral)}</td></tr></table></body></html>`;
+      const novaJanela = window.open('', '', 'width=1000,height=800');
+      novaJanela.document.write(relatorio);
+      novaJanela.document.close();
+      novaJanela.print();
+    }
+
+    function renderTabelaVendas() {
+      const tbody = document.querySelector("#tabelaVendas tbody");
+      tbody.innerHTML = "";
+      const ordemProdutos = ["Espeto","Salgado","Lanche","Caldo","Massa","Doce","Cerveja lata","Refrigerante lata","Água garrafa 350ml","Mesa"];
+      ordemProdutos.forEach(nome => {
+        const item = vendas[nome] || {qtd:0, valor: produtos.find(p=>p.nome===nome).preco};
+        const totalItem = item.qtd * item.valor;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td class="border p-2">${nome}</td>
+          <td class="border p-2">
+            <button onclick="alterarQtd('${nome}', -1)" class="bg-red-500 text-white px-2 rounded">-</button>
+            <span class="mx-2 font-bold">${item.qtd}</span>
+            <button onclick="alterarQtd('${nome}', 1)" class="bg-green-500 text-white px-2 rounded">+</button>
+          </td>
+          <td class="border p-2">R$ ${formatarValor(item.valor)}</td>
+          <td class="border p-2">R$ ${formatarValor(totalItem)}</td>
+          <td class="border p-2">
+            <button onclick="apagarItem('${nome}')" class="bg-red-500 text-white px-2 py-1 rounded">🗑️</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+      atualizarTotalArrecadado();
+    }
+
+    function alterarQtd(nome, delta) {
+      if(!vendas[nome]) vendas[nome] = {qtd:0, valor: produtos.find(p=>p.nome===nome).preco};
+      vendas[nome].qtd += delta;
+      if (vendas[nome].qtd < 0) vendas[nome].qtd = 0;
+      localStorage.setItem("vendas", JSON.stringify(vendas));
+      renderTabelaVendas();
+    }
+
+    function apagarItem(nome) {
+      if (confirm(`Deseja apagar todas as vendas de "${nome}"?`)) {
+        delete vendas[nome];
+        localStorage.setItem("vendas", JSON.stringify(vendas));
+        renderTabelaVendas();
+      }
+    }
+
+    function atualizarTotalArrecadado() {
+      let totalGeral = 0;
+      for (let nome in vendas) {
+        totalGeral += vendas[nome].qtd * vendas[nome].valor;
+      }
+      document.getElementById("totalArrecadado").textContent = "R$ " + formatarValor(totalGeral);
+    }
+
+    renderTabelaVendas();
+  </script>
+
+</body>
+</html>
+

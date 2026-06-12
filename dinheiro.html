@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDV Dinheiro - Festival ECIM 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    #tabelaVendas th, #tabelaVendas td { text-align: center; }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans">
+  <header class="bg-black text-white p-2 flex items-center justify-center gap-2 text-xl font-bold">
+    <img src="escola-civico-militar-como-funciona-1-300x191.webp" alt="Festival" class="w-10 h-10">
+    CONTROLE DE VENDAS - FESTIVAL ECIM 2026 - CAIXA DINHEIRO
+  </header>
+
+  <div class="max-w-6xl mx-auto p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mt-4">
+    <div class="lg:col-span-2 bg-white rounded-2xl shadow p-4">
+      <h1 class="text-2xl font-bold mb-4">Produtos</h1>
+      <h2 class="text-xl font-semibold mb-2 mt-4">Alimentos</h2>
+      <div id="produtos-rapidos" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+      <h2 class="text-xl font-semibold mb-2 mt-4">Bebidas</h2>
+      <div id="produtos-bebidas" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+      <h2 class="text-xl font-semibold mb-2 mt-4">Extras</h2>
+      <div id="produtos-pratos" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-4 flex flex-col h-full">
+      <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">
+        <img src="icone-do-carrinho_933463-13570.avif" alt="Carrinho" class="w-6 h-6">
+        Carrinho
+      </h2>
+      <div id="carrinho" class="flex-1 overflow-y-auto space-y-2 max-h-64 mb-4"></div>
+      <div class="border-t pt-4 flex justify-between text-xl font-bold">
+        <span>Total:</span>
+        <span id="total">R$ 0,00</span>
+      </div>
+      <div class="mt-4 p-4 bg-gray-50 rounded-xl">
+        <label class="block font-semibold mb-1">Dinheiro Recebido:</label>
+        <input type="number" id="recebido" placeholder="Digite o valor recebido" class="w-full border rounded-lg p-2" oninput="calcularTroco()">
+        <div class="mt-4 flex justify-between text-lg font-bold">
+          <span>Troco:</span>
+          <span id="troco">R$ 0,00</span>
+        </div>
+      </div>
+      <button onclick="finalizarVenda()" class="mt-4 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition">Finalizar Venda</button>
+      <button onclick="mostrarRelatorio()" class="mt-4 bg-purple-600 text-white font-bold py-3 rounded-xl hover:bg-purple-700 transition">Relatorio</button>
+    </div>
+  </div>
+
+  <div class="max-w-6xl mx-auto p-6 mt-6 bg-white rounded-2xl shadow">
+    <h2 class="text-2xl font-bold mb-4">Editar Vendas Salvas</h2>
+    <table class="w-full border-collapse" id="tabelaVendas">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="border p-2">Produto</th>
+          <th class="border p-2">Quantidade</th>
+          <th class="border p-2">Valor Unitario</th>
+          <th class="border p-2">Valor Total</th>
+          <th class="border p-2">Acoes</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="max-w-6xl mx-auto p-6 mt-2 bg-white rounded-2xl shadow text-center text-xl font-bold">
+    Total Arrecadado: <span id="totalArrecadado">R$ 0,00</span>
+  </div>
+  <div class="max-w-6xl mx-auto p-6 mt-2 flex justify-center">
+    <button onclick="imprimirRelatorio()" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-xl hover:bg-orange-600 transition">Imprimir Relatorio</button>
+  </div>
+
+  <script>
+    window.CAIXA_CONFIG = { nomeExibicao: "Dinheiro", localStorageKey: "vendas_dinheiro", firebasePath: "vendas_dinheiro" };
+  </script>
+  <script src="festival-core.js"></script>
+  <script src="pdv.js"></script>
+</body>
+</html>

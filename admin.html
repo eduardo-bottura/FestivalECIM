@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador - Festival ECIM 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <header class="bg-black text-white p-4 text-center">
+    <h1 class="text-3xl font-black">ADMINISTRADOR - PEDIDOS</h1>
+    <p class="text-sm mt-1">Festival ECIM 2026</p>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-6">
+    <div class="bg-white rounded-xl shadow p-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <input id="filtroPedido" class="border rounded-lg p-3 md:col-span-3" placeholder="Filtrar por numero do pedido">
+        <button onclick="carregarPedidos()" class="bg-blue-600 text-white font-bold rounded-lg p-3">Atualizar</button>
+      </div>
+    </div>
+    <div id="listaPedidos" class="space-y-5"></div>
+  </main>
+
+  <script src="festival-core.js"></script>
+  <script>
+    const core = window.FestivalCore;
+    let pedidos = {};
+
+    function opcoesProdutos() {
+      return core.produtosFestival.map(produto => `<option value="${produto.nome}">${produto.nome}</option>`).join("");
+    }
+
+    async function carregarPedidos() {
+      pedidos = await core.obterJson("pedidos") || {};
+      renderPedidos();
+    }
+
+    function renderPedidos() {
+      const filtro = core.formatarPedido(document.getElementById("filtroPedido").value);
+      const lista = document.getElementById("listaPedidos");
+      const numeros = Object.keys(pedidos).sort((a, b) => Number(a) - Number(b));
+      const visiveis = filtro && filtro !== "00" ? numeros.filter(numero => numero === filtro) : numeros;
+
+      if (visiveis.length === 0) {
+        lista.innerHTML = `<div class="bg-white rounded-xl shadow p-6 font-bold text-xl">Nenhum pedido encontrado.</div>`;
+        return;
+      }
+
+      lista.innerHTML = visiveis.map(numero => {
+        const pedido = pedidos[numero];
+        const itens = pedido.itens || [];
+        const linhas = itens.map((item, indice) => `
+          <tr>
+            <td class="border p-2">${item.nome}</td>
+            <td class="border p-2">${item.carrinho}</td>
+            <td class="border p-2">
+              <button onclick="alterarQuantidade('${numero}', ${indice}, -1)" class="bg-red-500 text-white px-2 rounded">-</button>
+              <span class="mx-2 font-bold">${item.quantidade}</span>
+              <button onclick="alterarQuantidade('${numero}', ${indice}, 1)" class="bg-green-600 text-white px-2 rounded">+</button>
+            </td>
+            <td class="border p-2">${item.statusEntrega || "PENDENTE"}</td>
+            <td class="border p-2">${item.dataEntrega || ""} ${item.horaEntrega || ""}</td>
+            <td class="border p-2">
+              <button onclick="excluirProduto('${numero}', ${indice})" class="bg-red-600 text-white px-3 py-1 rounded">Excluir</button>
+            </td>
+          </tr>`).join("");
+
+        return `<section class="bg-white rounded-xl shadow p-5">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+            <div>
+              <h2 class="text-3xl font-black">Pedido ${pedido.numero || numero}</h2>
+              <p><strong>Origem:</strong> ${pedido.origem || ""}</p>
+              <p><strong>Data:</strong> ${pedido.dataVenda || ""} <strong>Horario:</strong> ${pedido.horarioVenda || ""}</p>
+            </div>
+            <button onclick="excluirPedido('${numero}')" class="bg-red-700 text-white font-bold rounded-lg px-4 py-3">Excluir pedido completo</button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse">
+              <thead>
+                <tr class="bg-gray-200">
+                  <th class="border p-2">Produto</th>
+                  <th class="border p-2">Carrinho</th>
+                  <th class="border p-2">Quantidade</th>
+                  <th class="border p-2">Status</th>
+                  <th class="border p-2">Entrega</th>
+                  <th class="border p-2">Acoes</th>
+                </tr>
+              </thead>
+              <tbody>${linhas}</tbody>
+            </table>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+            <select id="produto-${numero}" class="border rounded-lg p-3">${opcoesProdutos()}</select>
+            <input id="qtd-${numero}" type="number" min="1" value="1" class="border rounded-lg p-3">
+            <button onclick="adicionarProduto('${numero}')" class="bg-blue-600 text-white font-bold rounded-lg p-3">Adicionar produto</button>
+          </div>
+        </section>`;
+      }).join("");
+    }
+
+    async function salvarPedido(numero) {
+      await core.salvarJson(`pedidos/${numero}`, pedidos[numero]);
+      renderPedidos();
+    }
+
+    async function alterarQuantidade(numero, indice, delta) {
+      const item = pedidos[numero].itens[indice];
+      item.quantidade = Math.max(0, Number(item.quantidade || 0) + delta);
+      if (item.quantidade === 0) pedidos[numero].itens.splice(indice, 1);
+      await salvarPedido(numero);
+    }
+
+    async function adicionarProduto(numero) {
+      const nome = document.getElementById(`produto-${numero}`).value;
+      const quantidade = Math.max(1, Number(document.getElementById(`qtd-${numero}`).value || 1));
+      const produto = core.produtoPorNome(nome);
+      const existente = pedidos[numero].itens.find(item => item.nome === nome);
+      if (existente) {
+        existente.quantidade = Number(existente.quantidade || 0) + quantidade;
+      } else {
+        pedidos[numero].itens.push({
+          id: produto.id,
+          nome: produto.nome,
+          preco: produto.preco,
+          quantidade,
+          carrinho: produto.carrinho,
+          statusEntrega: "PENDENTE",
+          dataEntrega: "",
+          horaEntrega: ""
+        });
+      }
+      await salvarPedido(numero);
+    }
+
+    async function excluirProduto(numero, indice) {
+      if (!confirm("Deseja excluir este produto do pedido?")) return;
+      pedidos[numero].itens.splice(indice, 1);
+      await salvarPedido(numero);
+    }
+
+    async function excluirPedido(numero) {
+      if (!confirm("Deseja excluir o pedido completo?")) return;
+      await core.excluirJson(`pedidos/${numero}`);
+      delete pedidos[numero];
+      renderPedidos();
+    }
+
+    document.getElementById("filtroPedido").addEventListener("input", renderPedidos);
+    carregarPedidos();
+  </script>
+</body>
+</html>

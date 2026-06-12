@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório Geral - Festival ECIM 2026</title>
+<script src="https://cdn.tailwindcss.com"></script>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDxk7YXAF0ITQZcweP3SV59SGz4JlyHyU",
+  authDomain: "festival-ecim-2026.firebaseapp.com",
+  databaseURL: "https://festival-ecim-2026-default-rtdb.firebaseio.com",
+  projectId: "festival-ecim-2026",
+  storageBucket: "festival-ecim-2026.firebasestorage.app",
+  messagingSenderId: "867847713962",
+  appId: "1:867847713962:web:80971fe6b8de94e5f6ccd3"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+let vendasPix = {};
+let vendasCartao = {};
+let vendasDinheiro = {};
+
+function moeda(valor){
+ return valor.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+}
+
+const ordemProdutos = [
+ "Espeto",
+ "Salgado",
+ "Lanche",
+ "Caldo",
+ "Massa",
+ "Doce",
+ "Cerveja lata",
+ "Refrigerante lata",
+ "Água garrafa 350ml",
+ "Mesa"
+];
+
+function produtoCanonico(nome){
+ const texto = String(nome || "").toLowerCase();
+ if (texto.includes("garrafa 350ml") || texto.includes("agua garrafa") || texto.includes("gua garrafa")) {
+   return "Água garrafa 350ml";
+ }
+ return nome;
+}
+
+function somarVendasPorProduto(vendas){
+ const totais = {};
+ Object.entries(vendas || {}).forEach(([nome, item]) => {
+   const produto = produtoCanonico(nome);
+   if (!totais[produto]) totais[produto] = 0;
+   totais[produto] += Number(item?.qtd || 0);
+ });
+ return totais;
+}
+
+function atualizarRelatorio(){
+
+ let totalPix = 0;
+ let totalCartao = 0;
+ let totalDinheiro = 0;
+
+ Object.values(vendasPix).forEach(i => totalPix += i.qtd * i.valor);
+ Object.values(vendasCartao).forEach(i => totalCartao += i.qtd * i.valor);
+ Object.values(vendasDinheiro).forEach(i => totalDinheiro += i.qtd * i.valor);
+
+ document.getElementById("totalPix").textContent = moeda(totalPix);
+ document.getElementById("totalCartao").textContent = moeda(totalCartao);
+ document.getElementById("totalDinheiro").textContent = moeda(totalDinheiro);
+ document.getElementById("totalGeral").textContent = moeda(totalPix + totalCartao + totalDinheiro);
+
+ const qtdPixPorProduto = somarVendasPorProduto(vendasPix);
+ const qtdCartaoPorProduto = somarVendasPorProduto(vendasCartao);
+ const qtdDinheiroPorProduto = somarVendasPorProduto(vendasDinheiro);
+
+ const produtos = [
+  ...ordemProdutos,
+  ...Object.keys(qtdPixPorProduto),
+  ...Object.keys(qtdCartaoPorProduto),
+  ...Object.keys(qtdDinheiroPorProduto)
+ ].filter((produto, indice, lista) => lista.indexOf(produto) === indice);
+
+ const tbody = document.getElementById("tabelaProdutos");
+ tbody.innerHTML = "";
+
+ produtos.forEach(produto => {
+   const qtdPix = qtdPixPorProduto[produto] || 0;
+   const qtdCartao = qtdCartaoPorProduto[produto] || 0;
+   const qtdDinheiro = qtdDinheiroPorProduto[produto] || 0;
+
+   tbody.innerHTML += `
+   <tr>
+     <td class="border p-2">${produto}</td>
+     <td class="border p-2">${qtdPix}</td>
+     <td class="border p-2">${qtdCartao}</td>
+     <td class="border p-2">${qtdDinheiro}</td>
+     <td class="border p-2 font-bold">${qtdPix + qtdCartao + qtdDinheiro}</td>
+   </tr>`;
+ });
+}
+
+window.imprimirRelatorio = () => window.print();
+
+window.addEventListener("DOMContentLoaded", () => {
+ const agora = new Date();
+ document.getElementById("dataHoraRelatorio").textContent =
+   "Relatório emitido em: " +
+   agora.toLocaleDateString('pt-BR') +
+   " às " +
+   agora.toLocaleTimeString('pt-BR');
+
+ onValue(ref(db,"vendas_pix"), snap => {
+   vendasPix = snap.val() || {};
+   atualizarRelatorio();
+ });
+
+ onValue(ref(db,"vendas_cartao"), snap => {
+   vendasCartao = snap.val() || {};
+   atualizarRelatorio();
+ });
+
+ onValue(ref(db,"vendas_dinheiro"), snap => {
+   vendasDinheiro = snap.val() || {};
+   atualizarRelatorio();
+ });
+});
+</script>
+
+<style>
+@media print {
+ button { display:none!important; }
+ body { background:white!important; padding:10px!important; }
+ table { width:100%; border-collapse:collapse; }
+ th,td { border:1px solid #000!important; padding:8px; }
+}
+</style>
+</head>
+<body class="bg-gray-100 p-6">
+
+<h1 class="text-3xl font-bold text-center mb-6">📊 RELATÓRIO GERAL - FESTIVAL ECIM 2026</h1>
+<p id="dataHoraRelatorio" class="text-center text-gray-600 mb-3 text-sm font-semibold"></p>
+
+<div class="grid grid-cols-4 gap-2 mb-4">
+<div class="bg-blue-600 text-white p-2 rounded-xl text-center"><h2 class="font-bold text-sm">PIX</h2><p id="totalPix" class="text-lg">R$ 0,00</p></div>
+<div class="bg-green-600 text-white p-2 rounded-xl text-center"><h2 class="font-bold text-sm">CARTÃO</h2><p id="totalCartao" class="text-lg">R$ 0,00</p></div>
+<div class="bg-yellow-500 text-white p-2 rounded-xl text-center"><h2 class="font-bold text-sm">DINHEIRO</h2><p id="totalDinheiro" class="text-lg">R$ 0,00</p></div>
+<div class="bg-black text-white p-2 rounded-xl text-center"><h2 class="font-bold text-sm">TOTAL GERAL</h2><p id="totalGeral" class="text-lg">R$ 0,00</p></div>
+</div>
+
+<div class="bg-white rounded-xl shadow p-4">
+<h2 class="text-2xl font-bold mb-4">Produtos Vendidos</h2>
+<table class="w-full border-collapse">
+<thead>
+<tr class="bg-gray-200">
+<th class="border p-2">Produto</th>
+<th class="border p-2">PIX</th>
+<th class="border p-2">Cartão</th>
+<th class="border p-2">Dinheiro</th>
+<th class="border p-2">Total</th>
+</tr>
+</thead>
+<tbody id="tabelaProdutos"></tbody>
+</table>
+</div>
+
+<div class="flex justify-center mt-6">
+<button onclick="imprimirRelatorio()" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-xl">
+🖨️ Imprimir Relatório
+</button>
+</div>
+
+</body>
+</html>
