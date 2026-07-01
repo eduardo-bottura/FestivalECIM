@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatório Geral - Festival ECIM 2026</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    window.FESTIVAL_AUTH = {
+      password: "relatorioecim",
+      scope: "relatorio",
+      message: "Digite a senha do relatório geral:"
+    };
+  </script>
+  <script src="auth-guard.js"></script>
+  <style>
+    @media print {
+      button, .nao-imprimir { display: none !important; }
+      body { background: white !important; padding: 10px !important; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { border: 1px solid #000 !important; padding: 8px; }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 p-4 md:p-6">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+      <div>
+        <h1 class="text-3xl font-black">RELATÓRIO GERAL - FESTIVAL ECIM 2026</h1>
+        <p id="dataHoraRelatorio" class="text-gray-600 text-sm font-semibold"></p>
+      </div>
+      <a href="index.html" class="nao-imprimir bg-black text-white font-bold rounded-lg px-4 py-2 text-center">Voltar ao início</a>
+    </div>
+
+    <div id="avisoRelatorio" class="hidden bg-red-50 border border-red-300 text-red-700 font-bold rounded-xl p-4 mb-4"></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2 mb-4">
+      <div class="bg-blue-600 text-white p-3 rounded-xl text-center"><h2 class="font-bold text-sm">PIX</h2><p id="totalPix" class="text-xl font-black">R$ 0,00</p></div>
+      <div class="bg-green-600 text-white p-3 rounded-xl text-center"><h2 class="font-bold text-sm">CARTÃO</h2><p id="totalCartao" class="text-xl font-black">R$ 0,00</p></div>
+      <div class="bg-yellow-500 text-black p-3 rounded-xl text-center"><h2 class="font-bold text-sm">DINHEIRO</h2><p id="totalDinheiro" class="text-xl font-black">R$ 0,00</p></div>
+      <div class="bg-black text-white p-3 rounded-xl text-center"><h2 class="font-bold text-sm">TOTAL GERAL</h2><p id="totalGeral" class="text-xl font-black">R$ 0,00</p></div>
+    </div>
+
+    <div class="bg-white rounded-xl shadow p-4 overflow-x-auto">
+      <h2 class="text-2xl font-bold mb-4">Produtos vendidos</h2>
+      <table class="w-full border-collapse text-center">
+        <thead>
+          <tr class="bg-gray-200">
+            <th class="border p-2">Produto</th><th class="border p-2">PIX</th><th class="border p-2">Cartão</th>
+            <th class="border p-2">Dinheiro</th><th class="border p-2">Total</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaProdutos"></tbody>
+      </table>
+    </div>
+
+    <div class="flex justify-center mt-6">
+      <button id="imprimirRelatorio" class="bg-orange-500 text-white font-bold py-3 px-6 rounded-xl">Imprimir relatório</button>
+    </div>
+  </div>
+  <script src="festival-core.js"></script>
+  <script src="relatorio.js"></script>
+</body>
+</html>

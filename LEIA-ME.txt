@@ -1,0 +1,26 @@
+CONTROLE DO FESTIVAL ECIM 2026
+
+Abra index.html para acessar o sistema.
+
+SENHAS INICIAIS
+- Caixas: ecim
+- Relatório geral: relatorioecim
+- Administrador: adminecim
+
+No painel do administrador você pode:
+- consultar, editar e excluir pedidos;
+- apagar os pedidos de teste e reiniciar a numeração;
+- adicionar, editar e excluir produtos;
+- criar novos tipos de carrinho de entrega;
+- renomear ou excluir carrinhos existentes;
+- publicar, editar, pausar e excluir avisos no cardápio;
+- enviar uma imagem ou informar o endereço de uma imagem;
+- alterar as senhas dos caixas, do relatório e do administrador.
+
+Produtos, carrinhos e senhas são sincronizados pelo mesmo Firebase já configurado no projeto.
+É necessário acesso à internet para sincronizar as alterações entre aparelhos.
+
+IMPORTANTE
+Este é um sistema estático e as senhas são uma proteção básica de interface.
+Para segurança forte, seria necessário usar Firebase Authentication e regras
+privadas no banco de dados.

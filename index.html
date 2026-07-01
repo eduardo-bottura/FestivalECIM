@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Festival ECIM 2026 - Sistema</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen font-sans text-black">
+  <header class="bg-black text-white">
+    <div class="max-w-6xl mx-auto px-4 py-5 flex items-center justify-center gap-3 text-center">
+      <img src="escola-civico-militar-como-funciona-1-300x191.webp" alt="Festival ECIM" class="w-12 h-12 object-cover">
+      <div>
+        <h1 class="text-2xl md:text-4xl font-black">Festival ECIM 2026</h1>
+        <p class="text-sm md:text-lg font-semibold">Sistema de Controle de Vendas e Entregas</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto p-4 md:p-6">
+    <section class="bg-yellow-300 border-4 border-yellow-500 rounded-xl p-4 md:p-6 text-center mb-6">
+      <h2 class="text-2xl md:text-4xl font-black">Painel Principal</h2>
+      <p class="text-base md:text-xl font-semibold mt-2">Escolha a área que deseja acessar.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-black mb-3">Caixas</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="pix.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">PIX</h3>
+          <p class="font-semibold text-gray-600 mt-1">Registrar vendas no caixa PIX.</p>
+        </a>
+        <a href="cartao.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">Cartão</h3>
+          <p class="font-semibold text-gray-600 mt-1">Registrar vendas no caixa cartão.</p>
+        </a>
+        <a href="dinheiro.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">Dinheiro</h3>
+          <p class="font-semibold text-gray-600 mt-1">Registrar vendas no caixa dinheiro.</p>
+        </a>
+      </div>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-2xl font-black mb-3">Gestão</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <a href="relatorio.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">Relatório Geral</h3>
+          <p class="font-semibold text-gray-600 mt-1">Acompanhar vendas por forma de pagamento.</p>
+        </a>
+        <a href="admin.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">Administrador</h3>
+          <p class="font-semibold text-gray-600 mt-1">Consultar, editar e zerar pedidos de teste.</p>
+        </a>
+        <a href="cardapio.html" class="bg-white rounded-xl shadow p-5 border border-gray-200 hover:shadow-lg transition">
+          <h3 class="text-2xl font-black">Cardápio Digital</h3>
+          <p class="font-semibold text-gray-600 mt-1">Página pública com os produtos vendidos.</p>
+        </a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="text-2xl font-black mb-3">Carrinhos de Entrega</h2>
+      <div id="listaCarrinhos" class="grid grid-cols-1 md:grid-cols-4 gap-4"></div>
+    </section>
+  </main>
+  <script src="festival-core.js"></script>
+  <script src="index.js"></script>
+</body>
+</html>
